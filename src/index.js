@@ -24,7 +24,7 @@ function checksExistsUserAccount(request, response, next) {
 function checksCreateTodosUserAvailability(request, response, next) {
   const { user } = request;
 
-  if (!user.pro && user.todos.length === 10) return response.status(403).json({ error: 'User is not allowed to create more todo!' });
+  if (!user.pro && user.todos.length >= 10) return response.status(403).json({ error: 'User is not allowed to create more todo!' });
 
   return next();
 }
@@ -37,9 +37,14 @@ function checksTodoExists(request, response, next) {
 
   if (!user) return response.status(404).json({ error: 'User not found!' });
 
+  const todoUser = user.todos.find(todo => todo.id === id);
 
+  if (!todoUser) return response.status(404).json({ error: 'Todo not found!' });
 
-  if (!username) return response.status(404).json({ error: 'User not found!' });
+  request.user = user;
+  request.todo = todoUser;
+
+  return next();
 }
 
 function findUserById(request, response, next) {
